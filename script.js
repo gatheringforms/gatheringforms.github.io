@@ -5,6 +5,7 @@ var Engine = Matter.Engine,
     Runner = Matter.Runner,
     Bodies = Matter.Bodies,
     Body = Matter.Body,
+    Detector = Matter.Detector,
     Vector = Matter.Vector,
     Svg = Matter.Svg,
     Composite = Matter.Composite;
@@ -22,9 +23,17 @@ var titleSVGs = [];
 var widthSimulation = 1290;
 var heightSimulation = 430;
 
+var collisionAmount = 0;
+
 function setup() {
-    createCanvas(windowWidth, (heightSimulation / widthSimulation) * windowWidth);
-    initialiseBodies();  
+    var canvas = createCanvas(windowWidth, (heightSimulation / widthSimulation) * windowWidth);
+    // canvas.parent("canvasContainer");
+    initialiseBodies();
+
+    // var canvasContainer = document.getElementById("canvasContainer");
+    // var img = document.createElement("img");
+    // img.src = "./assets/photo.JPG";
+    // canvasContainer.appendChild(img);
 }
 
 
@@ -48,8 +57,11 @@ function initialiseBodies() {
 }
 
 function draw() {
-    background(255);
 
+    var collisionDetector = Detector.create();
+    Detector.setBodies(collisionDetector, titleBodies);
+    //background(255);
+    clear();
     scale(width / widthSimulation);
     var bodies = Composite.allBodies(engine.world);
     for (var i = 0; i < titleBodies.length; i += 1) {
@@ -75,16 +87,27 @@ function draw() {
         pop();        
     }
 
-    if (frameCount == 1) {
+    if (frameCount % 60 == 1) {
         spreadBodies();
     } 
+
+    var collisions = Detector.collisions(collisionDetector);
+    if (collisions.length > 0) {
+        if (collisionAmount < collisions.length) {
+            console.log("Boop " + (collisions.length - collisionAmount));
+        }
+        collisionAmount = collisions.length;
+    }
+
+    filter(INVERT);
+
 }
 
 function spreadBodies() {
     for (var i = 0; i < titleBodies.length; i += 1) {
         var body = titleBodies[i];
-        Body.setAngularSpeed(body, random(-0.01, 0.01));
-        var velocity = Vector.create(random(0.7), 0);
+        Body.setAngularSpeed(body, random(-0.001, 0.001));
+        var velocity = Vector.create(random(0.1), 0);
         velocity = Vector.rotate(velocity, random(-TWO_PI, TWO_PI));
         Body.setVelocity(body, velocity);
     }

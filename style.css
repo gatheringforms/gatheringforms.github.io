@@ -1,6 +1,8 @@
 body {
     overflow: hidden;
     margin: 0;
+    /* background-image: url("./assets/photo.JPG");
+    background-position: center center; */
 }
 
 canvas {
@@ -8,5 +10,18 @@ canvas {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    filter: drop-shadow(0px 0px 7px) opacity(90%);
+}
+
+#canvasBackground {
+    position: fixed;
+    width: calc(100% - 80px);
+    height: calc(100% - 80px);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(0px 0px 3px);
+    border-radius: 10px;
+    object-fit: cover;
 }
 
