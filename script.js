@@ -22,21 +22,26 @@ var titleSVGs = [];
 
 var widthSimulation = 1290;
 var heightSimulation = 430;
+var padding = 0;
 
 var collisionAmount = 0;
 
+var clicked = false;
+
 function setup() {
     var canvas = createCanvas(windowWidth, (heightSimulation / widthSimulation) * windowWidth);
+    resizeBackground(windowWidth, (heightSimulation / widthSimulation) * windowWidth);
     // canvas.parent("canvasContainer");
     initialiseBodies();
 
-    // var canvasContainer = document.getElementById("canvasContainer");
-    // var img = document.createElement("img");
-    // img.src = "./assets/photo.JPG";
-    // canvasContainer.appendChild(img);
+
 }
 
-
+function resizeBackground(width, height) {
+    var body = document.getElementById("canvasBackground");
+    body.style.width = (width) + "px";
+    body.style.height = (height) + "px";
+}
 
 function initialiseBodies() {
     var top = Bodies.rectangle(widthSimulation * 0.5, -50, widthSimulation, 100, {isStatic: true});
@@ -57,12 +62,17 @@ function initialiseBodies() {
 }
 
 function draw() {
+    
+    
 
     var collisionDetector = Detector.create();
     Detector.setBodies(collisionDetector, titleBodies);
     //background(255);
     clear();
     scale(width / widthSimulation);
+
+    var offset = sin(millis() / 4000 * TWO_PI) * 1;
+    engine.gravity.scale = offset * 0.00001;
     var bodies = Composite.allBodies(engine.world);
     for (var i = 0; i < titleBodies.length; i += 1) {
         var titleBody = titleBodies[i];
@@ -70,7 +80,7 @@ function draw() {
         var angle = titleBody.angle;
 
         push();
-        translate(pos.x, pos.y);
+        translate(pos.x, pos.y + offset);
         rotate(angle);
         imageMode(CENTER);
         if (millis() % 5000 < 300) {
@@ -88,13 +98,17 @@ function draw() {
     }
 
     if (frameCount % 60 == 1) {
-        spreadBodies();
+        if (!clicked) {
+            spreadBodies(1);
+        }
+        
     } 
 
     var collisions = Detector.collisions(collisionDetector);
     if (collisions.length > 0) {
         if (collisionAmount < collisions.length) {
             console.log("Boop " + (collisions.length - collisionAmount));
+            //soundHit.play();
         }
         collisionAmount = collisions.length;
     }
@@ -103,19 +117,21 @@ function draw() {
 
 }
 
-function spreadBodies() {
+function spreadBodies(mult) {
     for (var i = 0; i < titleBodies.length; i += 1) {
         var body = titleBodies[i];
-        Body.setAngularSpeed(body, random(-0.001, 0.001));
-        var velocity = Vector.create(random(0.1), 0);
+        Body.setAngularSpeed(body, random(-0.001, 0.001) * mult);
+        var velocity = Vector.create(random(0.1) * mult, 0);
         velocity = Vector.rotate(velocity, random(-TWO_PI, TWO_PI));
         Body.setVelocity(body, velocity);
     }
 }
 function windowResized() {
   resizeCanvas(windowWidth, (heightSimulation / widthSimulation) * windowWidth);
+  resizeBackground(windowWidth, (heightSimulation / widthSimulation) * windowWidth);
 }
 
 function mouseClicked() {
-    spreadBodies();
+    clicked = true;
+    spreadBodies(40);
 }
